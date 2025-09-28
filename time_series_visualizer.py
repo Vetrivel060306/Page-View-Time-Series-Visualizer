@@ -39,45 +39,41 @@ def draw_bar_plot():
     monthly_averages = df_bar.groupby(['year', 'month'])['value'].mean()
     df_monthly = monthly_averages.reset_index()
 
-    # Create a new column with full month names for the legend
     df_monthly['Month_Name'] = df_monthly['month'].apply(lambda x: pd.to_datetime(str(x), format='%m').strftime('%B'))
 
-    # Ensure the months are sorted correctly for plotting and legend order
-    # This creates a categorical type with a specific order
     month_order = [pd.to_datetime(str(m), format='%m').strftime('%B') for m in sorted(df_monthly['month'].unique())]
     df_monthly['Month_Name'] = pd.Categorical(df_monthly['Month_Name'], categories=month_order, ordered=True)
 
     fig, ax = plt.subplots(figsize=(12, 7))
 
     sns.barplot(
-        x='year',  # Group on the x-axis by year
-        y='value',  # Bar height is the average page view
-        hue='Month_Name',  # Create separate bars and colors for each month
-        data=df_monthly,  # The DataFrame to use
-        ax=ax,  # Plot it on the Matplotlib Axes object
+        x='year',  
+        y='value',  
+        hue='Month_Name',  
+        data=df_monthly,  
+        ax=ax,  
         palette='tab10'
     )
 
     ax.set_xlabel('Years')
     ax.set_ylabel('Average Page Views')
 
-    # Customize the legend title
+    
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles=handles, labels=labels, title='Months', loc='upper left')
 
-    # Get the unique years for labels
+   
     year_labels = df_monthly['year'].unique()
 
-    # --- CORRECTION ---
-    # Set ticks to be the positional index (0, 1, 2, 3) where the bars are drawn
+   
     ax.set_xticks(np.arange(len(year_labels)))
 
-    # Set the labels to be the actual year values (2016, 2017, etc.)
+    
     ax.set_xticklabels(year_labels)
 
-    plt.tight_layout()  # Adjust layout to prevent labels from overlapping
-
-    # Save image and return fig (don't change this part)
+    plt.tight_layout()  
+    
+  # Save image and return fig (don't change this part)
     fig.savefig('bar_plot.png')
     return fig
 
@@ -129,4 +125,5 @@ def draw_box_plot():
     # Save image and return fig (don't change this part)
     fig.savefig('box_plot.png')
     return fig
+
 
