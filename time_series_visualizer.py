@@ -19,7 +19,6 @@ def draw_line_plot():
     # Draw line plot
     df_plot = df.copy()
     fig, ax = plt.subplots(figsize=(20, 6))
-    ax.grid(c='blue', linestyle='--', linewidth=0.5)
     ax.plot(df_plot.index, df_plot['value'], c='red')
     ax.set_ylabel('Page Views')
     ax.set_xlabel('Date')
@@ -31,53 +30,41 @@ def draw_line_plot():
 
 def draw_bar_plot():
     # Copy and modify data for monthly bar plot
-
     df_bar = df.copy()
-    df_bar = df_bar.reset_index()
-    df_bar['year'] = df_bar['date'].dt.year
-    df_bar['month'] = df_bar['date'].dt.month
-    monthly_averages = df_bar.groupby(['year', 'month'])['value'].mean()
-    df_monthly = monthly_averages.reset_index()
-
-    df_monthly['Month_Name'] = df_monthly['month'].apply(lambda x: pd.to_datetime(str(x), format='%m').strftime('%B'))
-
-    month_order = [pd.to_datetime(str(m), format='%m').strftime('%B') for m in sorted(df_monthly['month'].unique())]
-    df_monthly['Month_Name'] = pd.Categorical(df_monthly['Month_Name'], categories=month_order, ordered=True)
-
-    fig, ax = plt.subplots(figsize=(12, 7))
-
-    sns.barplot(
-        x='year',  
-        y='value',  
-        hue='Month_Name',  
-        data=df_monthly,  
-        ax=ax,  
-        palette='tab10'
+    df_bar['Year']=df_bar.index.year
+    df_bar['Months']=df_bar.index.month_name()
+    df_bar=df_bar.pivot_table(
+        values='value',
+        index='Year',
+        columns='Months',
+        aggfunc='mean'
     )
+    Months = ['January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December'
+    ]
+    df_bar = df_bar[Months]
+   # Draw bar plot
+    fig, ax = plt.subplots(figsize=(12, 7))
+    df_bar.plot(kind="bar", ax=ax, width=0.8)
 
     ax.set_xlabel('Years')
     ax.set_ylabel('Average Page Views')
+    plt.tight_layout()
 
-    
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles=handles, labels=labels, title='Months', loc='upper left')
-
-   
-    year_labels = df_monthly['year'].unique()
-
-   
-    ax.set_xticks(np.arange(len(year_labels)))
-
-    
-    ax.set_xticklabels(year_labels)
-
-    plt.tight_layout()  
-    
-  # Save image and return fig (don't change this part)
+    # Save image and return fig (don't change this part)
     fig.savefig('bar_plot.png')
     return fig
 
-    # Repeat the same cleanup for draw_line_plot for safety
 
 
 def draw_box_plot():
@@ -125,5 +112,4 @@ def draw_box_plot():
     # Save image and return fig (don't change this part)
     fig.savefig('box_plot.png')
     return fig
-
 
